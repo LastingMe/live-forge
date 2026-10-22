@@ -1,0 +1,6 @@
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/buffer/OBS_1/seg_012.ts'
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/buffer/OBS_1/seg_013.ts'
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/buffer/OBS_1/seg_014.ts'
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/buffer/OBS_1/seg_015.ts'
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/buffer/OBS_1/seg_016.ts'
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/buffer/OBS_1/seg_017.ts'

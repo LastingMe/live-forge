@@ -1,0 +1,3 @@
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/events/_playlist/p0.mp4'
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/events/_playlist/p1.mp4'
+file 'C:/Users/kaust/OneDrive/Desktop/valo replay/events/_playlist/p2.mp4'
