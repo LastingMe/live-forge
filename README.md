@@ -40,9 +40,9 @@ Before installing Live Forge, ensure your broadcast rig has the following:
    cd live-forge
 Install the required dependencies:
 
-Bash
-pip install -r requirements.txt
-📡 OBS Integration Setup
+    ```Bash
+    pip install -r requirements.txt ```
+   📡 OBS Integration Setup 
 To allow Live Forge to automatically trigger your replays on stream, configure OBS as follows:
 
 In OBS, navigate to Tools > WebSocket Server Settings.
