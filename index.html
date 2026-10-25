@@ -10,7 +10,7 @@
             --bg: #09090b;
             --surface: #18181b;
             --surface-hover: #27272a;
-            --accent: #e11d48; /* Live Recording Red */
+            --accent: #e11d48;
             --accent-glow: rgba(225, 29, 72, 0.4);
             --text: #fafafa;
             --muted: #a1a1aa;
@@ -38,7 +38,7 @@
             align-items: center;
             padding: 1.5rem 5%;
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            background: rgba(9, 9, 11, 0.8);
+            background: rgba(9, 9, 11, 0.95);
             backdrop-filter: blur(10px);
             position: fixed;
             width: 100%;
@@ -72,7 +72,7 @@
 
         /* Hero */
         .hero {
-            padding: 12rem 5% 6rem;
+            padding: 10rem 5% 6rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -159,16 +159,8 @@
             align-items: center;
             border-bottom: 1px solid var(--border);
         }
-        .mock-dots {
-            display: flex;
-            gap: 6px;
-        }
-        .mock-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #3f3f46;
-        }
+        .mock-dots { display: flex; gap: 6px; }
+        .mock-dot { width: 12px; height: 12px; border-radius: 50%; background: #3f3f46; }
         .mock-dot:first-child { background: var(--accent); }
         .mock-body {
             display: grid;
@@ -197,69 +189,31 @@
             letter-spacing: 2px;
         }
         .mock-pane:last-child::after { content: "PROGRAM (OBS)"; color: var(--accent); }
-        .mock-footer {
-            background: #18181b;
-            height: 60px;
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: 0 2rem;
-        }
-        .mock-timeline {
-            height: 4px;
-            background: #27272a;
-            width: 100%;
-            border-radius: 2px;
-            position: relative;
-        }
-        .mock-playhead {
-            position: absolute;
-            left: 60%;
-            top: -4px;
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent);
-        }
 
-        /* Stats Strip */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            border-top: 1px solid rgba(255,255,255,0.05);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            background: var(--surface);
-        }
-        .stat-box {
-            padding: 3rem 2rem;
+        /* General Section Formatting */
+        .section-title {
             text-align: center;
-            border-right: 1px solid rgba(255,255,255,0.05);
-        }
-        .stat-box:last-child { border-right: none; }
-        .stat-num {
             font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--text);
-            margin-bottom: 0.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
         }
-        .stat-label {
+        .section-subtitle {
+            text-align: center;
             color: var(--muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
+            max-width: 600px;
+            margin: 0 auto 4rem;
         }
-
-        /* Features */
-        .features {
-            padding: 8rem 5%;
+        .container {
+            padding: 6rem 5%;
             max-width: 1200px;
             margin: 0 auto;
         }
+
+        /* Features */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
         }
         .feat-card {
@@ -286,14 +240,85 @@
             margin-bottom: 1.5rem;
             border: 1px solid var(--border);
         }
-        .feat-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.8rem;
+        .feat-card h3 { font-size: 1.2rem; margin-bottom: 0.8rem; }
+        .feat-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
+
+        /* Hardware Requirements Grid */
+        .req-section {
+            background: #121214;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .feat-card p {
+        .req-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .req-box {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .req-box h3 {
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .req-list { list-style: none; }
+        .req-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .req-list li:last-child { border-bottom: none; }
+        .req-list strong { color: var(--text); font-size: 1.1rem; }
+        .req-list span { color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
+
+        /* Step-by-step Setup */
+        .step-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .step-card {
+            display: flex;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            gap: 2rem;
+        }
+        .step-number {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--bg);
+            -webkit-text-stroke: 1px var(--border);
+            line-height: 0.8;
+        }
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+        .step-content p {
             color: var(--muted);
-            font-size: 0.95rem;
-            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .code-block {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 0.9rem;
         }
 
         /* Footer */
@@ -306,10 +331,11 @@
         }
 
         @media (max-width: 768px) {
-            .stats { grid-template-columns: 1fr; }
-            .stat-box { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
+            .req-grid { grid-template-columns: 1fr; }
             .mock-body { grid-template-columns: 1fr; }
             .nav-links { display: none; }
+            .step-card { flex-direction: column; gap: 1rem; }
+            .step-number { font-size: 3rem; -webkit-text-stroke: 1px var(--accent); }
         }
     </style>
 </head>
@@ -321,7 +347,10 @@
             LIVE FORGE
         </div>
         <div class="nav-links">
-            <a href="https://github.com/LastingMe/live-forge"><i class="fab fa-github"></i> Repository</a>
+            <a href="#features">Features</a>
+            <a href="#hardware">Hardware</a>
+            <a href="#setup">Setup Guide</a>
+            <a href="https://github.com/LastingMe/live-forge"><i class="fab fa-github"></i> GitHub</a>
         </div>
     </nav>
 
@@ -351,66 +380,122 @@
                 <div class="mock-pane"><i class="fa-solid fa-video"></i></div>
                 <div class="mock-pane"><i class="fa-solid fa-tower-broadcast"></i></div>
             </div>
-            <div class="mock-footer">
-                <div class="mock-timeline">
-                    <div class="mock-playhead"></div>
-                </div>
-            </div>
         </div>
     </header>
 
-    <section class="stats">
-        <div class="stat-box">
-            <div class="stat-num">0</div>
-            <div class="stat-label">Capture Cards Needed</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-num">13+</div>
-            <div class="stat-label">Concurrent LAN Feeds</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-num">100%</div>
-            <div class="stat-label">Free & Open Source</div>
-        </div>
-    </section>
-
-    <section class="features">
+    <section id="features" class="container">
+        <h2 class="section-title">Broadcast Architecture</h2>
+        <p class="section-subtitle">Designed specifically to handle heavy LAN event production without bogging down player PCs or requiring massive storage drives.</p>
+        
         <div class="features-grid">
             <div class="feat-card">
                 <div class="feat-icon"><i class="fa-solid fa-network-wired"></i></div>
                 <h3>UDP/SRT Ingestion</h3>
-                <p>Route multiple player POVs over your Gigabit switch directly from OBS without HDMI cables.</p>
+                <p>Route multiple player POVs over your Gigabit switch directly from OBS using custom FFmpeg outputs. No HDMI cables required.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon"><i class="fa-solid fa-memory"></i></div>
                 <h3>Rolling Memory Buffer</h3>
-                <p>Continuously records temporary streams. Zero hard drive bloat ensures players maintain max FPS.</p>
+                <p>Continuously records temporary streams. Old segments are wiped automatically, ensuring zero hard drive bloat and max game FPS.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon"><i class="fa-solid fa-scissors"></i></div>
                 <h3>NLE Playback Deck</h3>
-                <p>Set custom IN/OUT points on the fly, apply transitions, and manipulate playback speed for slow-mo.</p>
-            </div>
-            <div class="feat-card">
-                <div class="feat-icon"><i class="fa-solid fa-bolt"></i></div>
-                <h3>Global Hotkeys</h3>
-                <p>Press F1-F15 during live action to instantly extract the last 5 to 15 seconds of the rolling buffer.</p>
+                <p>Set custom IN/OUT points on the fly, apply transitions, and manipulate playback speed for professional slow-motion highlights.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon"><i class="fa-solid fa-robot"></i></div>
                 <h3>OBS WebSocket Synced</h3>
-                <p>Automated scene routing. Live Forge tells OBS to play the replay, then instantly cuts back to live.</p>
+                <p>Automated scene routing. Live Forge triggers the OBS scene transition, plays the rendered clip, and instantly cuts back to live gameplay.</p>
             </div>
-            <div class="feat-card">
-                <div class="feat-icon"><i class="fa-solid fa-microchip"></i></div>
-                <h3>Hardware Decoding</h3>
-                <p>Native FFmpeg integration utilizing NVIDIA CUDA, Intel QSV, and DXVA2 for high-load production processing.</p>
+        </div>
+    </section>
+
+    <section id="hardware" class="req-section container">
+        <h2 class="section-title">System Requirements</h2>
+        <p class="section-subtitle">Network-based video routing relies heavily on your local infrastructure. Do not attempt to run multiple video streams on 100Mbps hardware.</p>
+        
+        <div class="req-grid">
+            <div class="req-box">
+                <h3><i class="fa-solid fa-server"></i> LAN Infrastructure</h3>
+                <ul class="req-list">
+                    <li>
+                        <strong>Gigabit Switch (Mandatory)</strong>
+                        <span>A 1000 Mbps unmanaged switch (e.g., TP-Link 24-Port Gigabit) is required. A standard 100 Mbps switch will crash under the bandwidth weight.</span>
+                    </li>
+                    <li>
+                        <strong>Cat6 Ethernet Cabling</strong>
+                        <span>All player machines and the production PC must be hardwired with high-speed Cat6 cables.</span>
+                    </li>
+                    <li>
+                        <strong>Player Setup</strong>
+                        <span>OBS Studio must be installed on player PCs to encode and transmit the UDP feed over the network.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="req-box">
+                <h3><i class="fa-solid fa-desktop"></i> Production PC</h3>
+                <ul class="req-list">
+                    <li>
+                        <strong>GPU (NVIDIA Recommended)</strong>
+                        <span>An RTX 3050 or higher is highly recommended. Live Forge utilizes NVIDIA CUDA to decode up to 13 concurrent video streams smoothly.</span>
+                    </li>
+                    <li>
+                        <strong>Processor & RAM</strong>
+                        <span>Intel Core i5 (12th Gen+) or AMD Ryzen 5 (5000 Series+) with at least 16GB RAM.</span>
+                    </li>
+                    <li>
+                        <strong>External SSD Storage</strong>
+                        <span>A dedicated Type-C External SSD is required for the Video Buffer directory to prevent the operating system drive from bottlenecking.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="setup" class="container">
+        <h2 class="section-title">Quick Start Guide</h2>
+        <p class="section-subtitle">Follow these exact steps to prepare your production machine and player PCs for a live LAN event.</p>
+        
+        <div class="step-container">
+            <div class="step-card">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Install FFmpeg (Crucial)</h3>
+                    <p>Live Forge requires FFmpeg to process and render video clips. Download the latest Windows build of FFmpeg and either add it to your System PATH variables, or extract <strong>ffmpeg.exe</strong> and place it directly into the Live Forge installation folder.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Configure OBS WebSocket</h3>
+                    <p>On your main broadcast PC, open OBS Studio and go to <strong>Tools > WebSocket Server Settings</strong>. Check "Enable WebSocket server" (v5). Note your Port (usually 4455) and Server Password. Enter these credentials into the Live Forge Settings menu so the engine can control OBS.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                    <h3>Set Up Player UDP Streams</h3>
+                    <p>On every Player PC, open OBS, go to Settings > Output, set the Output Mode to Advanced, and configure a Custom Output (FFmpeg). Enter a unique UDP URL targeting your Production PC's IP address. Example:</p>
+                    <div class="code-block">udp://192.168.1.100:5001?pkt_size=1316</div>
+                    <p style="margin-top: 10px;">Add this exact URL to your Camera Profiles in Live Forge.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                    <h3>Buffer & Capture</h3>
+                    <p>Click "START BUFFERING" before the match begins. When a hype moment happens, press your assigned Hotkey (e.g., F10) to instantly extract the last 15 seconds. Prep the clip in the NLE deck, and click "Play in OBS" to send it live.</p>
+                </div>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>Built for the grassroots esports community. Licensed under MIT.</p>
+        <p>Live Forge is open-source software built for the esports community. Licensed under MIT.</p>
     </footer>
 
 </body>
