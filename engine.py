@@ -87,8 +87,8 @@ class ReplayChannel:
             "-pix_fmt", "yuv420p", "-g", fps, "-sc_threshold", "0",
             "-f", "segment", "-segment_time", "1",
             "-segment_wrap", str(self.buffer_seconds), pattern,
-            "-vf", "fps=12,scale=320:180",
-            "-c:v", "mjpeg", "-q:v", "5", "-f", "image2pipe", "-",
+            "-vf", "fps=30,scale=960:540",
+            "-c:v", "mjpeg", "-q:v", "2", "-update", "1", "-f", "image2pipe", "-",
         ]
         self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=10 ** 6, creationflags=NO_WINDOW)
         self.is_running = True

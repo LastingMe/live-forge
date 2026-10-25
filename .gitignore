@@ -1,0 +1,26 @@
+# Environments
+.env
+venv/
+env/
+
+# Python caching
+__pycache__/
+*.pyc
+
+# Live Forge local state files
+liveforge_onboarded.txt
+workspaces.json
+*.json.tmp
+
+# Video buffers and exports
+VALO_EXPORTS/
+buffer/
+events/
+*.ts
+*.mp4
+*.mkv
+
+# Build and PyInstaller files
+build/
+dist/
+*.spec

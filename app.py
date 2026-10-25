@@ -28,13 +28,139 @@ DEFAULT_HOTKEYS = {
     "speed_100": "z", "speed_75": "x", "speed_50": "c", "speed_25": "v"
 }
 
+ONBOARDING_FILE = "liveforge_onboarded.txt"
+
+class QuickStartGuide(ctk.CTkToplevel):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.title("Live Forge // First Run Setup Tour")
+        self.geometry("700x520")
+        self.attributes("-topmost", True)
+        self.grab_set() 
+        
+        self.update_idletasks()
+        x = (self.winfo_screenwidth() - 700) // 2
+        y = (self.winfo_screenheight() - 520) // 2
+        self.geometry(f"+{x}+{y}")
+
+        self.current_step = 0
+        
+        self.slides = [
+            {
+                "title": "WELCOME TO LIVE FORGE",
+                "subtitle": "Professional Esports Broadcast Replay Engine",
+                "content": (
+                    "Live Forge is engineered to capture, trim, and broadcast multiple network "
+                    "video feeds instantly to OBS with zero local disk bloat on the players' PCs.\n\n"
+                    "Before your tournament goes live, let's take a quick tour to ensure "
+                    "your production environment is configured correctly."
+                ),
+                "icon": "🎬"
+            },
+            {
+                "title": "STEP 1: SYSTEM & NETWORK",
+                "subtitle": "Map your camera feeds and connect OBS",
+                "content": (
+                    "Click the '⚙ SETTINGS' button in the top right corner.\n\n"
+                    "• Camera Profiles: Add your UDP or SRT stream URLs from the players.\n"
+                    "• Network & OBS: Enter your OBS WebSocket details so Live Forge can trigger scenes automatically.\n"
+                    "• Storage & Buffer: Assign a fast SSD for your temporary Buffer and Events directories."
+                ),
+                "icon": "⚙️"
+            },
+            {
+                "title": "STEP 2: THE BUFFER ENGINE",
+                "subtitle": "Rolling memory capture",
+                "content": (
+                    "When you click '▶ START BUFFERING', the engine connects to all player feeds.\n\n"
+                    "It records continuously in a temporary rolling loop. Old footage is automatically deleted to save space. "
+                    "You must start buffering BEFORE a match begins to capture any action."
+                ),
+                "icon": "⏳"
+            },
+            {
+                "title": "STEP 3: CAPTURE & BROADCAST",
+                "subtitle": "Marking clips and pushing to air",
+                "content": (
+                    "When a hype moment happens, press F1-F15 to instantly save the last X seconds.\n\n"
+                    "1. Select the clip in your workspace.\n"
+                    "2. Trim the IN and OUT points using the transport controls.\n"
+                    "3. Click '1. PREP 📤' to render it instantly.\n"
+                    "4. Click '2. PLAY IN OBS 🔴' to trigger the automatic replay transition on stream."
+                ),
+                "icon": "⚡"
+            }
+        ]
+
+        self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.main_frame.pack(fill="both", expand=True, padx=40, pady=30)
+        
+        self.icon_label = ctk.CTkLabel(self.main_frame, text="", font=("Arial", 60))
+        self.icon_label.pack(pady=(10, 15))
+        
+        self.title_label = ctk.CTkLabel(self.main_frame, text="", font=("Arial", 22, "bold"), text_color="#2A9D8F")
+        self.title_label.pack(pady=(0, 5))
+        
+        self.subtitle_label = ctk.CTkLabel(self.main_frame, text="", font=("Arial", 14), text_color="#A0A0AB")
+        self.subtitle_label.pack(pady=(0, 20))
+        
+        self.content_label = ctk.CTkLabel(self.main_frame, text="", font=("Arial", 14), text_color="#E0E0E8", justify="center", wraplength=550)
+        self.content_label.pack(pady=10)
+
+        self.nav_frame = ctk.CTkFrame(self, fg_color="#181824", height=60, corner_radius=0)
+        self.nav_frame.pack(side="bottom", fill="x")
+        
+        self.progress_label = ctk.CTkLabel(self.nav_frame, text="Step 1 of 4", font=("Arial", 12, "bold"), text_color="#A0A0AB")
+        self.progress_label.pack(side="left", padx=20, pady=15)
+        
+        self.next_btn = ctk.CTkButton(self.nav_frame, text="NEXT ➔", font=("Arial", 12, "bold"), fg_color="#457B9D", command=self.next_slide)
+        self.next_btn.pack(side="right", padx=20, pady=15)
+        
+        self.prev_btn = ctk.CTkButton(self.nav_frame, text="⬅ BACK", font=("Arial", 12, "bold"), fg_color="#333342", hover_color="#484B6A", command=self.prev_slide)
+        self.prev_btn.pack(side="right", padx=10, pady=15)
+        
+        self.update_slide()
+
+    def update_slide(self):
+        slide = self.slides[self.current_step]
+        self.icon_label.configure(text=slide["icon"])
+        self.title_label.configure(text=slide["title"])
+        self.subtitle_label.configure(text=slide["subtitle"])
+        self.content_label.configure(text=slide["content"])
+        
+        self.progress_label.configure(text=f"Step {self.current_step + 1} of {len(self.slides)}")
+        
+        if self.current_step == 0:
+            self.prev_btn.configure(state="disabled", fg_color="#121217")
+        else:
+            self.prev_btn.configure(state="normal", fg_color="#333342")
+            
+        if self.current_step == len(self.slides) - 1:
+            self.next_btn.configure(text="LAUNCH LIVE FORGE 🚀", fg_color="#E63946", hover_color="#B81D2A", command=self.close_guide)
+        else:
+            self.next_btn.configure(text="NEXT ➔", fg_color="#457B9D", command=self.next_slide)
+
+    def next_slide(self):
+        if self.current_step < len(self.slides) - 1:
+            self.current_step += 1
+            self.update_slide()
+
+    def prev_slide(self):
+        if self.current_step > 0:
+            self.current_step -= 1
+            self.update_slide()
+
+    def close_guide(self):
+        with open(ONBOARDING_FILE, "w") as f:
+            f.write("onboarded=true")
+        self.destroy()
+
 class VMixClipEditor(ctk.CTkToplevel):
-    """vMix-style Playlist Storyboard & Transition Sequence Editor."""
     def __init__(self, parent, deck_ref):
         super().__init__(parent)
         self.deck = deck_ref
         self.engine = deck_ref.engine
-        self.title("VALO-REPLAY // vMix Storyboard & Transition Editor")
+        self.title("Live Forge // vMix Storyboard & Transition Editor")
         self.geometry("900x600")
         self.minsize(800, 500)
         self.attributes("-topmost", True)
@@ -100,7 +226,6 @@ class VMixClipEditor(ctk.CTkToplevel):
         self.tree.configure(yscrollcommand=sb.set)
         self.tree.bind("<<TreeviewSelect>>", self._on_select)
 
-        # Editor Sidebar Controls
         side = ctk.CTkFrame(self, fg_color="#181824", width=220)
         side.pack(fill="x", padx=10, pady=5)
 
@@ -221,68 +346,49 @@ class VMixClipEditor(ctk.CTkToplevel):
 class SettingsWindow(ctk.CTkToplevel):
     def __init__(self, parent, engine, app_ref):
         super().__init__(parent)
-        self.title("VALO-REPLAY // System Configuration")
-        self.geometry("820x780")
+        self.title("Live Forge // System Configuration")
+        self.geometry("860x780")
         self.minsize(750, 680)
         self.engine = engine
         self.app_ref = app_ref
         self.grab_set()
+        
+        self.profiles_data = dict(self.engine.settings.get('camera_profiles', {"Default Profile": []}))
+        if not self.profiles_data:
+            self.profiles_data = {"Default Profile": []}
+        self.current_profile = list(self.profiles_data.keys())[0]
 
         ctk.CTkLabel(self, text="CONFIGURATION & SYSTEM CONTROL", font=("Arial", 14, "bold")).pack(pady=(12, 4))
 
         self.tabs = ctk.CTkTabview(self)
         self.tabs.pack(fill="both", expand=True, padx=14, pady=6)
         
-        tab_modes = self.tabs.add("Modes & Sources")
-        tab_feeds = self.tabs.add("Custom Feeds")
+        tab_prof = self.tabs.add("Camera Profiles")
         tab_keys = self.tabs.add("Hotkeys")
         tab_net = self.tabs.add("Network & OBS")
         tab_io = self.tabs.add("Storage & Buffer")
 
-        # TAB: MODES & SOURCES
-        ctk.CTkLabel(tab_modes, text="BROADCAST MODES (Auto-generates camera arrays)", font=("Arial", 11, "bold"), text_color="#A0A0AB").pack(anchor="w", padx=8, pady=(6, 2))
-        self.mode_frame = ctk.CTkScrollableFrame(tab_modes, height=220)
-        self.mode_frame.pack(fill="x", padx=6, pady=4)
-        ctk.CTkButton(tab_modes, text="➕ Add Custom Mode", fg_color="#457B9D", font=("Arial", 11, "bold"), command=self._add_blank_mode).pack(pady=4)
+        sel_frame = ctk.CTkFrame(tab_prof, fg_color="#181824", corner_radius=6)
+        sel_frame.pack(fill="x", padx=6, pady=4)
+        ctk.CTkLabel(sel_frame, text="Active Profile:", font=("Arial", 12, "bold"), text_color="#A0A0AB").pack(side="left", padx=10, pady=10)
+        
+        self.prof_menu = ctk.CTkOptionMenu(sel_frame, values=list(self.profiles_data.keys()), command=self._switch_profile)
+        self.prof_menu.set(self.current_profile)
+        self.prof_menu.pack(side="left", padx=5)
+        
+        ctk.CTkButton(sel_frame, text="➕ New", width=60, fg_color="#2A9D8F", command=self._add_profile).pack(side="left", padx=5)
+        ctk.CTkButton(sel_frame, text="✏️ Rename", width=60, fg_color="#457B9D", command=self._rename_profile).pack(side="left", padx=5)
+        ctk.CTkButton(sel_frame, text="🗑 Delete", width=60, fg_color="#7A1F2B", hover_color="#B81D2A", command=self._delete_profile).pack(side="right", padx=10)
 
-        ctk.CTkLabel(tab_modes, text="INPUT SOURCES (Base URL Templates)", font=("Arial", 11, "bold"), text_color="#A0A0AB").pack(anchor="w", padx=8, pady=(15, 2))
-        self.source_frame = ctk.CTkScrollableFrame(tab_modes, height=220)
-        self.source_frame.pack(fill="x", padx=6, pady=4)
-        ctk.CTkButton(tab_modes, text="➕ Add Input Source", fg_color="#457B9D", font=("Arial", 11, "bold"), command=self._add_blank_source).pack(pady=4)
-
-        self.mode_widgets = []
-        self.source_widgets = []
-        self._refresh_modes_sources()
-
-        # TAB: CUSTOM FEEDS
-        gf = ctk.CTkFrame(tab_feeds, fg_color="#181824", corner_radius=6)
-        gf.pack(fill="x", padx=6, pady=(6, 10))
-        ctk.CTkLabel(gf, text="GLOBAL DECODE OPTIONS (Applies to all auto-generated Modes)", font=("Arial", 11, "bold"), text_color="#A0A0AB").pack(anchor="w", padx=10, pady=(6, 2))
-
-        r_g = ctk.CTkFrame(gf, fg_color="transparent")
-        r_g.pack(fill="x", padx=6, pady=(2, 6))
-        ctk.CTkLabel(r_g, text="HW Decode:", text_color="#A0A0AB", font=("Arial", 11)).pack(side="left", padx=(4, 4))
-        self.g_hw = ctk.CTkOptionMenu(r_g, values=["None", "CUDA (NVIDIA)", "QSV (Intel)", "DXVA2 (Windows)"], width=130)
-        self.g_hw.set(getattr(self.engine, 'settings', {}).get('default_hwaccel', 'None'))
-        self.g_hw.pack(side="left", padx=(0, 15))
-        ctk.CTkLabel(r_g, text="FPS:", text_color="#A0A0AB", font=("Arial", 11)).pack(side="left", padx=(0, 4))
-        self.g_fps = ctk.CTkOptionMenu(r_g, values=["30", "60", "24"], width=60)
-        self.g_fps.set(getattr(self.engine, 'settings', {}).get('default_fps', '30'))
-        self.g_fps.pack(side="left", padx=(0, 15))
-        ctk.CTkLabel(r_g, text="Flags:", text_color="#A0A0AB", font=("Arial", 11)).pack(side="left", padx=(0, 4))
-        self.g_flags = ctk.CTkEntry(r_g, placeholder_text="e.g. -fflags nobuffer", width=150)
-        self.g_flags.insert(0, getattr(self.engine, 'settings', {}).get('default_flags', ''))
-        self.g_flags.pack(side="left", fill="x", expand=True, padx=(0, 6))
-
-        ctk.CTkLabel(tab_feeds, text="ACTIVE VIDEO FEEDS (Used ONLY when 'CUSTOM Config' Mode is selected)", font=("Arial", 11, "bold"), text_color="#A0A0AB").pack(anchor="w", padx=8, pady=(6, 2))
-        self.feed_list = ctk.CTkScrollableFrame(tab_feeds)
+        ctk.CTkLabel(tab_prof, text="EXPLICIT VIDEO FEEDS FOR THIS PROFILE", font=("Arial", 11, "bold"), text_color="#A0A0AB").pack(anchor="w", padx=10, pady=(10, 2))
+        
+        self.feed_list = ctk.CTkScrollableFrame(tab_prof)
         self.feed_list.pack(fill="both", expand=True, padx=6, pady=4)
-        ctk.CTkButton(tab_feeds, text="➕ Add Blank Feed", fg_color="#457B9D", font=("Arial", 11, "bold"), command=self._add_blank_feed).pack(pady=10)
+        ctk.CTkButton(tab_prof, text="➕ Add Camera Feed", fg_color="#457B9D", font=("Arial", 11, "bold"), command=self._add_blank_feed).pack(pady=10)
 
         self.feed_widgets = []
-        self._refresh_feeds()
+        self._load_current_profile_ui()
 
-        # TAB: HOTKEYS
         sc_keys = ctk.CTkScrollableFrame(tab_keys)
         sc_keys.pack(fill="both", expand=True, padx=6, pady=6)
         
@@ -309,7 +415,6 @@ class SettingsWindow(ctk.CTkToplevel):
                 e.pack(side="left")
                 self.hk_entries[k_id] = e
 
-        # TAB: NETWORK & OBS
         ctk.CTkLabel(tab_net, text="OBS WebSocket Server (v5):", font=("Arial", 11, "bold")).pack(anchor="w", padx=10, pady=(10, 2))
         obs_frame = ctk.CTkFrame(tab_net, fg_color="transparent")
         obs_frame.pack(fill="x", padx=10)
@@ -337,7 +442,6 @@ class SettingsWindow(ctk.CTkToplevel):
         self.obs_media_source.insert(0, getattr(self.engine, 'settings', {}).get('obs_media_source', 'Instant Replay Video'))
         self.obs_media_source.pack(anchor="w", padx=10)
 
-        # TAB: STORAGE & BUFFER
         ctk.CTkLabel(tab_io, text="Buffer Directory (Temp .ts stream segments):", font=("Arial", 11, "bold")).pack(anchor="w", padx=10, pady=(10, 2))
         self.buf_dir = ctk.CTkEntry(tab_io, width=420)
         self.buf_dir.insert(0, self.engine.base_buffer_dir)
@@ -363,6 +467,68 @@ class SettingsWindow(ctk.CTkToplevel):
 
         ctk.CTkButton(self, text="Save Settings & Apply", fg_color="#2A9D8F", hover_color="#1E7268", height=38, font=("Arial", 12, "bold"), command=self.save_settings).pack(pady=10)
 
+    def _save_current_profile_ui(self):
+        feeds = []
+        for w in self.feed_widgets:
+            name = w["name"].get().strip()
+            if not name: continue
+            feeds.append({
+                "name": name,
+                "url": w["url"].get().strip(),
+                "config": {
+                    "hwaccel": w["hw"].get(),
+                    "fps": w["fps"].get(),
+                    "custom_flags": w["flags"].get().strip()
+                }
+            })
+        self.profiles_data[self.current_profile] = feeds
+
+    def _load_current_profile_ui(self):
+        for w in self.feed_list.winfo_children(): w.destroy()
+        self.feed_widgets.clear()
+        feeds = self.profiles_data.get(self.current_profile, [])
+        if not feeds:
+            ctk.CTkLabel(self.feed_list, text="No cameras found in this profile. Click 'Add Camera Feed' below.", text_color="gray").pack(pady=20)
+            return
+        for f in feeds:
+            self._create_feed_row(f)
+
+    def _switch_profile(self, name):
+        self._save_current_profile_ui()
+        self.current_profile = name
+        self._load_current_profile_ui()
+
+    def _add_profile(self):
+        name = ctk.CTkInputDialog(text="Profile Name (e.g., Main Stage LAN):", title="New Profile").get_input()
+        if name and name not in self.profiles_data:
+            self._save_current_profile_ui()
+            self.profiles_data[name] = []
+            self.current_profile = name
+            self.prof_menu.configure(values=list(self.profiles_data.keys()))
+            self.prof_menu.set(name)
+            self._load_current_profile_ui()
+
+    def _rename_profile(self):
+        new_name = ctk.CTkInputDialog(text="New Profile Name:", title="Rename").get_input()
+        if new_name and new_name not in self.profiles_data:
+            self._save_current_profile_ui()
+            self.profiles_data[new_name] = self.profiles_data.pop(self.current_profile)
+            self.current_profile = new_name
+            self.prof_menu.configure(values=list(self.profiles_data.keys()))
+            self.prof_menu.set(new_name)
+            self._load_current_profile_ui()
+
+    def _delete_profile(self):
+        if len(self.profiles_data) <= 1:
+            messagebox.showwarning("Cannot Delete", "You must have at least one profile.")
+            return
+        if messagebox.askyesno("Delete Profile", f"Delete the '{self.current_profile}' profile?"):
+            del self.profiles_data[self.current_profile]
+            self.current_profile = list(self.profiles_data.keys())[0]
+            self.prof_menu.configure(values=list(self.profiles_data.keys()))
+            self.prof_menu.set(self.current_profile)
+            self._load_current_profile_ui()
+
     def _delete_row(self, row, widget_list):
         row.destroy()
         for i, w in enumerate(widget_list):
@@ -370,91 +536,7 @@ class SettingsWindow(ctk.CTkToplevel):
                 widget_list.pop(i)
                 break
 
-    def _refresh_modes_sources(self):
-        for w in self.mode_frame.winfo_children(): w.destroy()
-        for w in self.source_frame.winfo_children(): w.destroy()
-        self.mode_widgets.clear()
-        self.source_widgets.clear()
-
-        default_modes = {
-            "ONLINE Profile": {"count": 3, "prefix": "OBS_", "start_port": 9001},
-            "LAN Profile": {"count": 10, "prefix": "Player_", "start_port": 9001}
-        }
-        modes = self.engine.settings.get('modes', default_modes)
-        for name, cfg in modes.items():
-            self._create_mode_row(name, cfg)
-
-        default_sources = {
-            "NETWORK Stream": "udp://0.0.0.0:{port}?overrun_nonfatal=1&fifo_size=50000000",
-            "LOCAL Screen": "local_desktop",
-            "TEST Bars": "test"
-        }
-        sources = self.engine.settings.get('sources', default_sources)
-        for name, url in sources.items():
-            self._create_source_row(name, url)
-
-    def _create_mode_row(self, name, cfg):
-        row = ctk.CTkFrame(self.mode_frame, fg_color="#181824", corner_radius=6)
-        row.pack(fill="x", pady=3, padx=2)
-
-        w_name = ctk.CTkEntry(row, width=160, font=("Arial", 11, "bold"), placeholder_text="Mode Name")
-        w_name.insert(0, name)
-        w_name.pack(side="left", padx=4, pady=4)
-
-        ctk.CTkLabel(row, text="Count:", text_color="#A0A0AB").pack(side="left", padx=(6, 2))
-        w_count = ctk.CTkEntry(row, width=40)
-        w_count.insert(0, str(cfg.get("count", 1)))
-        w_count.pack(side="left", padx=2)
-
-        ctk.CTkLabel(row, text="Prefix:", text_color="#A0A0AB").pack(side="left", padx=(6, 2))
-        w_prefix = ctk.CTkEntry(row, width=80)
-        w_prefix.insert(0, cfg.get("prefix", "Cam_"))
-        w_prefix.pack(side="left", padx=2)
-
-        ctk.CTkLabel(row, text="Start Port:", text_color="#A0A0AB").pack(side="left", padx=(6, 2))
-        w_port = ctk.CTkEntry(row, width=60)
-        w_port.insert(0, str(cfg.get("start_port", 9000)))
-        w_port.pack(side="left", padx=2)
-
-        btn = ctk.CTkButton(row, text="✕", width=28, fg_color="#7A1F2B", command=lambda r=row: self._delete_row(r, self.mode_widgets))
-        btn.pack(side="right", padx=4)
-
-        self.mode_widgets.append({"row": row, "name": w_name, "count": w_count, "prefix": w_prefix, "port": w_port})
-
-    def _create_source_row(self, name, url):
-        row = ctk.CTkFrame(self.source_frame, fg_color="#181824", corner_radius=6)
-        row.pack(fill="x", pady=3, padx=2)
-
-        w_name = ctk.CTkEntry(row, width=160, font=("Arial", 11, "bold"), placeholder_text="Source Name")
-        w_name.insert(0, name)
-        w_name.pack(side="left", padx=4, pady=4)
-
-        w_url = ctk.CTkEntry(row, placeholder_text="URL Template (Use {port})")
-        w_url.insert(0, url)
-        w_url.pack(side="left", fill="x", expand=True, padx=4)
-
-        btn = ctk.CTkButton(row, text="✕", width=28, fg_color="#7A1F2B", command=lambda r=row: self._delete_row(r, self.source_widgets))
-        btn.pack(side="right", padx=4)
-
-        self.source_widgets.append({"row": row, "name": w_name, "url": w_url})
-
-    def _add_blank_mode(self):
-        self._create_mode_row("New Profile", {"count": 5, "prefix": "Cam_", "start_port": 8000})
-
-    def _add_blank_source(self):
-        self._create_source_row("New Stream Type", "udp://0.0.0.0:{port}")
-
-    def _refresh_feeds(self):
-        for w in self.feed_list.winfo_children(): w.destroy()
-        self.feed_widgets.clear()
-        saved = self.engine.settings.get('saved_feeds', [])
-        if not saved:
-            ctk.CTkLabel(self.feed_list, text="No custom feeds configured. Click 'Add Blank Feed' below.", text_color="gray").pack(pady=20)
-            return
-        for idx, f in enumerate(saved):
-            self._create_feed_row(idx, f)
-
-    def _create_feed_row(self, idx, f):
+    def _create_feed_row(self, f):
         box = ctk.CTkFrame(self.feed_list, fg_color="#181824", corner_radius=6)
         box.pack(fill="x", padx=4, pady=4)
         
@@ -471,7 +553,7 @@ class SettingsWindow(ctk.CTkToplevel):
 
         def set_url(val, target=w_url, menu_ref=None):
             target.delete(0, "end")
-            if val == "UDP": target.insert(0, "udp://0.0.0.0:9001?overrun_nonfatal=1")
+            if val == "UDP": target.insert(0, "udp://0.0.0.0:9001?overrun_nonfatal=1&fifo_size=50000000")
             elif val == "SRT": target.insert(0, "srt://0.0.0.0:9001?mode=listener")
             elif val == "SCREEN": target.insert(0, "local_desktop")
             elif val == "TEST": target.insert(0, "test")
@@ -489,49 +571,32 @@ class SettingsWindow(ctk.CTkToplevel):
         conf = f.get("config", {})
         ctk.CTkLabel(r2, text="HW Decode:", text_color="#A0A0AB", font=("Arial", 11)).pack(side="left", padx=(0, 5))
         w_hw = ctk.CTkOptionMenu(r2, values=["None", "CUDA (NVIDIA)", "QSV (Intel)", "DXVA2 (Windows)"], width=130)
-        w_hw.set(conf.get("hwaccel", "None"))
+        w_hw.set(conf.get("hwaccel", "CUDA (NVIDIA)"))
         w_hw.pack(side="left", padx=(0, 15))
         
         ctk.CTkLabel(r2, text="FPS:", text_color="#A0A0AB", font=("Arial", 11)).pack(side="left", padx=(0, 5))
         w_fps = ctk.CTkOptionMenu(r2, values=["30", "60", "24"], width=60)
-        w_fps.set(conf.get("fps", "30"))
+        w_fps.set(conf.get("fps", "60"))
         w_fps.pack(side="left", padx=(0, 15))
         
         ctk.CTkLabel(r2, text="Flags:", text_color="#A0A0AB", font=("Arial", 11)).pack(side="left", padx=(0, 5))
-        w_flags = ctk.CTkEntry(r2, placeholder_text="e.g. -fflags nobuffer", width=150)
-        w_flags.insert(0, conf.get("custom_flags", ""))
+        w_flags = ctk.CTkEntry(r2, placeholder_text="-fflags nobuffer -flags low_delay", width=150)
+        w_flags.insert(0, conf.get("custom_flags", "-fflags nobuffer -flags low_delay"))
         w_flags.pack(side="left", fill="x", expand=True)
         
         self.feed_widgets.append({"row": box, "name": w_name, "url": w_url, "hw": w_hw, "fps": w_fps, "flags": w_flags})
 
     def _add_blank_feed(self):
-        self._create_feed_row(-1, {"name": f"Camera_{len(self.feed_widgets)+1}", "url": "", "config": {}})
+        for w in self.feed_list.winfo_children():
+            if isinstance(w, ctk.CTkLabel): w.destroy()
+        self._create_feed_row({"name": f"Camera_{len(self.feed_widgets)+1}", "url": "", "config": {}})
 
     def save_settings(self):
-        new_modes = {}
-        for w in self.mode_widgets:
-            name = w["name"].get().strip()
-            if not name: continue
-            new_modes[name] = {"count": int(w["count"].get() or 1), "prefix": w["prefix"].get(), "start_port": int(w["port"].get() or 9000)}
-        self.engine.settings['modes'] = new_modes
-
-        new_sources = {}
-        for w in self.source_widgets:
-            name = w["name"].get().strip()
-            if not name: continue
-            new_sources[name] = w["url"].get().strip()
-        self.engine.settings['sources'] = new_sources
-
-        new_saved = []
-        for w in self.feed_widgets:
-            name = w["name"].get().strip()
-            if not name: continue
-            new_saved.append({"name": name, "url": w["url"].get().strip(), "config": {"hwaccel": w["hw"].get(), "fps": w["fps"].get(), "custom_flags": w["flags"].get().strip()}})
-        self.engine.settings['saved_feeds'] = new_saved
+        self._save_current_profile_ui()
+        self.engine.settings['camera_profiles'] = self.profiles_data
         
-        self.engine.settings['default_hwaccel'] = self.g_hw.get()
-        self.engine.settings['default_fps'] = self.g_fps.get()
-        self.engine.settings['default_flags'] = self.g_flags.get().strip()
+        for key in ['modes', 'sources', 'saved_feeds', 'default_hwaccel', 'default_fps', 'default_flags']:
+            self.engine.settings.pop(key, None)
 
         self.engine.settings['buffer_seconds'] = int(self.buf_len.get())
         self.engine.base_buffer_dir = self.buf_dir.get().strip()
@@ -554,10 +619,10 @@ class SettingsWindow(ctk.CTkToplevel):
         self.app_ref.apply_configuration()
         self.destroy()
 
-class ValoReplayDeck(ctk.CTk):
+class LiveForgeDeck(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("VALO-REPLAY // Broadcast Replay System")
+        self.title("Live Forge // Broadcast Replay System")
         self.geometry("1400x800") 
         self.minsize(1200, 700)
         self.after(0, lambda: self.state("zoomed") if os.name == "nt" else self.attributes('-zoomed', True))
@@ -572,7 +637,6 @@ class ValoReplayDeck(ctk.CTk):
         self.speed = 1.0
         self.live_mode = True
         
-        # Debounce Trackers
         self.preview_size = (960, 540)
         self._last_fit = None
         self._last_preview_fit = None
@@ -602,12 +666,21 @@ class ValoReplayDeck(ctk.CTk):
         self.last_prep_file = os.path.abspath(self.engine.program_out_file)
 
         self._load_state()
+
+        if 'camera_profiles' not in self.engine.settings:
+            self.engine.settings['camera_profiles'] = {
+                "LAN Tournament": [
+                    {"name": "observer 1", "url": "udp://0.0.0.0:9001?overrun_nonfatal=1&fifo_size=50000000", "config": {"hwaccel": "CUDA (NVIDIA)", "fps": "60", "custom_flags": "-fflags nobuffer -flags low_delay"}},
+                    {"name": "observer 2", "url": "udp://0.0.0.0:9002?overrun_nonfatal=1&fifo_size=50000000", "config": {"hwaccel": "CUDA (NVIDIA)", "fps": "60", "custom_flags": "-fflags nobuffer -flags low_delay"}}
+                ]
+            }
+
         self._setup_treeview_style()
         self._build_ui()
         self._bind_shortcuts()
         self._rebuild_ws_ui()
         
-        self.engine.configure_mode(self.mode_menu.get(), self.source_menu.get())
+        self.apply_configuration()
         self._rebuild_multiview_tiles()
 
         self._pump()
@@ -615,6 +688,11 @@ class ValoReplayDeck(ctk.CTk):
         self._update_multiview_loop()
         self._poll_buffer_status()
         self._auto_save_loop()
+        self.after(500, self._check_first_run)
+
+    def _check_first_run(self):
+        if not os.path.exists(ONBOARDING_FILE):
+            QuickStartGuide(self)
 
     def _auto_save_loop(self):
         self._save_state()
@@ -646,26 +724,12 @@ class ValoReplayDeck(ctk.CTk):
         except Exception:
             self.engine.settings = {'buffer_seconds': 30}
 
-    def _get_mode_list(self):
-        default_modes = {"ONLINE Profile": 1, "LAN Profile": 1}
-        modes_dict = self.engine.settings.get('modes', default_modes)
-        return list(modes_dict.keys()) + ["CUSTOM Config"]
-
-    def _get_source_list(self):
-        default_sources = {"NETWORK Stream": 1, "LOCAL Screen": 1, "TEST Bars": 1}
-        sources_dict = self.engine.settings.get('sources', default_sources)
-        return list(sources_dict.keys())
-
     def refresh_top_dropdowns(self):
-        modes = self._get_mode_list()
-        self.mode_menu.configure(values=modes)
-        if self.mode_menu.get() not in modes:
-            self.mode_menu.set(modes[0])
-
-        sources = self._get_source_list()
-        self.source_menu.configure(values=sources)
-        if self.source_menu.get() not in sources:
-            self.source_menu.set(sources[0])
+        profiles = list(self.engine.settings.get('camera_profiles', {"Default Profile": []}).keys())
+        if not profiles: profiles = ["Default Profile"]
+        self.profile_menu.configure(values=profiles)
+        if self.profile_menu.get() not in profiles:
+            self.profile_menu.set(profiles[0])
 
     def _setup_treeview_style(self):
         style = ttk.Style(self)
@@ -691,18 +755,13 @@ class ValoReplayDeck(ctk.CTk):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
-        # TOP GLOBAL TOOLBAR
         top = ctk.CTkFrame(self, height=50, fg_color="#121217", corner_radius=0)
         top.grid(row=0, column=0, sticky="ew")
         top.pack_propagate(False)
 
-        ctk.CTkLabel(top, text="MODE:", font=("Arial", 12, "bold"), text_color="#A0A0AB").pack(side="left", padx=(15, 5))
-        self.mode_menu = ctk.CTkOptionMenu(top, values=["Loading..."], command=lambda _: self.apply_configuration())
-        self.mode_menu.pack(side="left", pady=10, padx=5)
-
-        ctk.CTkLabel(top, text="SOURCE:", font=("Arial", 12, "bold"), text_color="#A0A0AB").pack(side="left", padx=(15, 5))
-        self.source_menu = ctk.CTkOptionMenu(top, values=["Loading..."], command=lambda _: self.apply_configuration())
-        self.source_menu.pack(side="left", pady=10, padx=5)
+        ctk.CTkLabel(top, text="PROFILE:", font=("Arial", 12, "bold"), text_color="#A0A0AB").pack(side="left", padx=(15, 5))
+        self.profile_menu = ctk.CTkOptionMenu(top, values=["Loading..."], command=lambda _: self.apply_configuration())
+        self.profile_menu.pack(side="left", pady=10, padx=5)
 
         self.refresh_top_dropdowns()
 
@@ -712,6 +771,9 @@ class ValoReplayDeck(ctk.CTk):
 
         self.status_label = ctk.CTkLabel(top, text="STATUS: Idle", text_color="gray", font=("Arial", 12, "bold"))
         self.status_label.pack(side="right", padx=15)
+        
+        self.popout_btn = ctk.CTkButton(top, text="🗗 POP OUT MONITORS", width=140, fg_color="#6D597A", font=("Arial", 11, "bold"), command=self.toggle_popout)
+        self.popout_btn.pack(side="right", pady=10, padx=10)
 
         self.settings_btn = ctk.CTkButton(top, text="⚙ SETTINGS", width=100, fg_color="#333342", hover_color="#484B6A", font=("Arial", 11, "bold"), command=self.open_settings)
         self.settings_btn.pack(side="right", pady=10, padx=10)
@@ -722,31 +784,13 @@ class ValoReplayDeck(ctk.CTk):
         self.buffer_btn = ctk.CTkButton(top, text="▶ START BUFFERING", width=140, fg_color="#2A9D8F", hover_color="#1E7268", font=("Arial", 11, "bold"), command=self.toggle_buffering)
         self.buffer_btn.pack(side="right", pady=10, padx=10)
 
-        # MAIN DUAL PANE
         main_pane = tk.PanedWindow(self, orient="horizontal", sashwidth=8, sashrelief="flat", bg="#121217", bd=0)
         main_pane.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 
-        left_monitor = ctk.CTkFrame(main_pane, fg_color="#0D0E15", corner_radius=0)
-        main_pane.add(left_monitor, minsize=400, stretch="always")
+        self.left_monitor = ctk.CTkFrame(main_pane, fg_color="#0D0E15", corner_radius=0)
+        main_pane.add(self.left_monitor, minsize=400, stretch="always")
 
-        players_frame = ctk.CTkFrame(left_monitor, fg_color="transparent")
-        players_frame.pack(side="top", fill="both", expand=True, padx=5, pady=5)
-        
-        self.player_a_box = ctk.CTkFrame(players_frame, fg_color="#000000", corner_radius=4)
-        self.player_a_box.pack(side="left", fill="both", expand=True, padx=2)
-        ctk.CTkLabel(self.player_a_box, text="A (PREVIEW / CUE)", fg_color="#FF9F1C", text_color="black", font=("Arial", 10, "bold"), height=20, corner_radius=2).pack(anchor="nw", padx=4, pady=4)
-        self.preview_lbl = ctk.CTkLabel(self.player_a_box, text="No Clip Loaded", text_color="#444444")
-        self.preview_lbl.pack(fill="both", expand=True)
-
-        self.player_b_box = ctk.CTkFrame(players_frame, fg_color="#000000", corner_radius=4)
-        self.player_b_box.pack(side="right", fill="both", expand=True, padx=2)
-        ctk.CTkLabel(self.player_b_box, text="B (ON AIR)", fg_color="#E63946", text_color="white", font=("Arial", 10, "bold"), height=20, corner_radius=2).pack(anchor="nw", padx=4, pady=4)
-        ctk.CTkLabel(self.player_b_box, text="ROUTED TO OBS", text_color="#444444", font=("Arial", 16, "bold")).pack(fill="both", expand=True)
-
-        mv_frame = ctk.CTkFrame(left_monitor, fg_color="transparent")
-        mv_frame.pack(side="bottom", fill="both", expand=True, padx=5, pady=5)
-        self.multiview_grid = ctk.CTkFrame(mv_frame, fg_color="transparent")
-        self.multiview_grid.pack(fill="both", expand=True)
+        self._create_monitor_frames(self.left_monitor)
 
         right_monitor = ctk.CTkFrame(main_pane, fg_color="#181820", corner_radius=0)
         main_pane.add(right_monitor, minsize=550, stretch="always")
@@ -802,9 +846,6 @@ class ValoReplayDeck(ctk.CTk):
         self.tree.bind("<<TreeviewSelect>>", self._on_tree_select)
         self.tree.bind("<Double-1>", self._on_tree_double_click)
 
-        # -------------------------------------------------------------
-        # RESPONSIVE CONTROLLER DECK & vMix NLE INTEGRATION
-        # -------------------------------------------------------------
         deck = ctk.CTkFrame(right_monitor, fg_color="#121217", corner_radius=8)
         deck.pack(side="bottom", fill="x", expand=False, padx=10, pady=(0, 10))
 
@@ -825,7 +866,6 @@ class ValoReplayDeck(ctk.CTk):
         ctrl_frame.grid_columnconfigure(1, weight=1) 
         ctrl_frame.grid_columnconfigure(2, weight=1) 
 
-        # LEFT SIDE: Trimming & Playhead Splitting
         mark_box = ctk.CTkFrame(ctrl_frame, fg_color="transparent")
         mark_box.grid(row=0, column=0, sticky="w")
         ctk.CTkButton(mark_box, text="[ IN ]", width=55, height=32, fg_color="#3A3D5C", font=("Arial", 11, "bold"), command=lambda: self.set_now("in")).pack(side="left", padx=2)
@@ -833,7 +873,6 @@ class ValoReplayDeck(ctk.CTk):
         ctk.CTkButton(mark_box, text="✂️ SUB-CLIP", width=80, height=32, fg_color="#6D597A", hover_color="#4E3F59", font=("Arial", 11, "bold"), command=self.duplicate_clip).pack(side="left", padx=2)
         ctk.CTkButton(mark_box, text="✂ SPLIT", width=65, height=32, fg_color="#B5179E", hover_color="#7209B7", font=("Arial", 11, "bold"), command=self.split_at_playhead).pack(side="left", padx=2)
 
-        # CENTER: Transport
         trans_box = ctk.CTkFrame(ctrl_frame, fg_color="transparent")
         trans_box.grid(row=0, column=1, sticky="n")
         ctk.CTkButton(trans_box, text="⏮", width=40, height=32, fg_color="#2B2B36", command=self.cue).pack(side="left", padx=2)
@@ -842,14 +881,12 @@ class ValoReplayDeck(ctk.CTk):
         self.play_btn.pack(side="left", padx=6)
         ctk.CTkButton(trans_box, text="|▶", width=40, height=32, fg_color="#2B2B36", command=lambda: self.nudge("in", FRAME)).pack(side="left", padx=2)
 
-        # RIGHT SIDE: Speeds
         speed_box = ctk.CTkFrame(ctrl_frame, fg_color="transparent")
         speed_box.grid(row=0, column=2, sticky="e")
         self.speed_selector = ctk.CTkSegmentedButton(speed_box, values=list(SPEEDS), command=lambda v: self.set_speed_value(SPEEDS[v]), height=32)
         self.speed_selector.set("100%")
         self.speed_selector.pack(side="left")
 
-        # BOTTOM ACTION BAR
         action_frame = ctk.CTkFrame(deck, fg_color="transparent")
         action_frame.pack(fill="x", expand=True, padx=15, pady=(5, 10))
         
@@ -877,7 +914,6 @@ class ValoReplayDeck(ctk.CTk):
         VMixClipEditor(self, self)
 
     def split_at_playhead(self):
-        """Splices the currently active event in-place at the playhead position into two clips."""
         ev = self.selected_event
         p = self.engine.player
         if not ev or p.path != self._cur_path(): return
@@ -947,6 +983,9 @@ class ValoReplayDeck(ctk.CTk):
         p = self.engine.player
         img = p.latest_pil_image
         if img is None: return
+        
+        if not hasattr(self, 'player_a_box') or not self.player_a_box.winfo_exists(): return
+        
         W, H = self.player_a_box.winfo_width(), self.player_a_box.winfo_height()
         if W < 50 or H < 30: return
         fit = self._fit169(W - 8, H - 28) 
@@ -967,6 +1006,7 @@ class ValoReplayDeck(ctk.CTk):
         return max(1, n) if n <= 3 else (4 if n <= 8 else 5)
 
     def _rebuild_multiview_tiles(self):
+        if not hasattr(self, 'multiview_grid') or not self.multiview_grid.winfo_exists(): return
         for w in self.multiview_grid.winfo_children(): w.destroy()
         self.live_tile_labels.clear()
         self._tile_serial.clear()
@@ -987,7 +1027,7 @@ class ValoReplayDeck(ctk.CTk):
 
     def _update_multiview_loop(self):
         n = len(self.engine.channels)
-        if n:
+        if n and hasattr(self, 'multiview_grid') and self.multiview_grid.winfo_exists():
             cols = self._grid_cols(n)
             rows = max(1, -(-n // cols))
             W, H = self.multiview_grid.winfo_width(), self.multiview_grid.winfo_height()
@@ -1005,14 +1045,22 @@ class ValoReplayDeck(ctk.CTk):
                     for ch_id, ch in list(self.engine.channels.items()):
                         img = ch.latest_pil_image
                         lbl = self.live_tile_labels.get(ch_id)
-                        if lbl is not None and img is not None and self._tile_serial.get(ch_id) is not img:
+                        if lbl is not None and lbl.winfo_exists() and img is not None and self._tile_serial.get(ch_id) is not img:
                             self._tile_serial[ch_id] = img
                             lbl.configure(image=ctk.CTkImage(light_image=img, dark_image=img, size=size), text="")
-        self.after(150, self._update_multiview_loop)
+        self.after(33, self._update_multiview_loop)
 
     def apply_configuration(self):
         self.engine.player.stop()
-        self.engine.configure_mode(self.mode_menu.get(), self.source_menu.get())
+        self.engine.stop_all()
+        self.engine.channels.clear()
+        
+        prof_name = self.profile_menu.get()
+        feeds = self.engine.settings.get('camera_profiles', {}).get(prof_name, [])
+        
+        for f in feeds:
+            self.engine.add_channel(f["name"], f["url"], f["config"])
+            
         self._rebuild_multiview_tiles()
         if self.is_buffering:
             self.engine.start_all()
@@ -1026,7 +1074,7 @@ class ValoReplayDeck(ctk.CTk):
         else:
             n = self.engine.get_buffer_health()
             if n < 3: self.status_label.configure(text="⚠️ Warming up buffer...", text_color="#FFB703")
-            else: self.status_label.configure(text=f"🟢 {self.mode_menu.get()} LIVE | Buffer: {n}s", text_color="#00FFAA")
+            else: self.status_label.configure(text=f"🟢 {self.profile_menu.get()} LIVE | Buffer: {n}s", text_color="#00FFAA")
         self.after(1000, self._poll_buffer_status)
 
     def mark(self, seconds):
@@ -1405,7 +1453,7 @@ class ValoReplayDeck(ctk.CTk):
             fmt_len = f"{int(ev['length']//60):02d}:{ev['length']%60:05.2f}"
             self.time_lbl.configure(text=f"{fmt_t} / {fmt_len}")
             if not self._scrubbing: self.timeline.set(t)
-        self.after(40, self._tick_ui)
+        self.after(33, self._tick_ui)
 
     def _bind_shortcuts(self):
         if hasattr(self, '_bound_keys'):
@@ -1449,12 +1497,64 @@ class ValoReplayDeck(ctk.CTk):
 
         self._rebuild_mark_buttons()
 
+    def _create_monitor_frames(self, parent):
+        self.players_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.players_frame.pack(side="top", fill="both", expand=True, padx=5, pady=5)
+        
+        self.player_a_box = ctk.CTkFrame(self.players_frame, fg_color="#000000", corner_radius=4)
+        self.player_a_box.pack(side="left", fill="both", expand=True, padx=2)
+        ctk.CTkLabel(self.player_a_box, text="A (PREVIEW / CUE)", fg_color="#FF9F1C", text_color="black", font=("Arial", 10, "bold"), height=20, corner_radius=2).pack(anchor="nw", padx=4, pady=4)
+        self.preview_lbl = ctk.CTkLabel(self.player_a_box, text="No Clip Loaded", text_color="#444444")
+        self.preview_lbl.pack(fill="both", expand=True)
+
+        self.player_b_box = ctk.CTkFrame(self.players_frame, fg_color="#000000", corner_radius=4)
+        self.player_b_box.pack(side="right", fill="both", expand=True, padx=2)
+        ctk.CTkLabel(self.player_b_box, text="B (ON AIR)", fg_color="#E63946", text_color="white", font=("Arial", 10, "bold"), height=20, corner_radius=2).pack(anchor="nw", padx=4, pady=4)
+        ctk.CTkLabel(self.player_b_box, text="ROUTED TO OBS", text_color="#444444", font=("Arial", 16, "bold")).pack(fill="both", expand=True)
+
+        self.mv_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.mv_frame.pack(side="bottom", fill="both", expand=True, padx=5, pady=5)
+        self.multiview_grid = ctk.CTkFrame(self.mv_frame, fg_color="transparent")
+        self.multiview_grid.pack(fill="both", expand=True)
+
+        self._last_preview_fit = None
+        self._tile_size = None
+        self._rebuild_multiview_tiles()
+
+    def toggle_popout(self):
+        if hasattr(self, 'popout_window') and self.popout_window and self.popout_window.winfo_exists():
+            self._close_popout()
+        else:
+            self.popout_window = ctk.CTkToplevel(self)
+            self.popout_window.title("Live Forge // Multiview Monitor")
+            self.popout_window.geometry("1280x720")
+            self.popout_window.protocol("WM_DELETE_WINDOW", self._close_popout)
+            
+            if hasattr(self, 'players_frame') and self.players_frame.winfo_exists(): self.players_frame.destroy()
+            if hasattr(self, 'mv_frame') and self.mv_frame.winfo_exists(): self.mv_frame.destroy()
+            
+            self._create_monitor_frames(self.popout_window)
+            
+            self.popout_btn.configure(text="🗖 DOCK MONITORS")
+
+    def _close_popout(self):
+        if hasattr(self, 'popout_window') and self.popout_window:
+            self.popout_window.destroy()
+            self.popout_window = None
+            
+            if hasattr(self, 'players_frame') and self.players_frame.winfo_exists(): self.players_frame.destroy()
+            if hasattr(self, 'mv_frame') and self.mv_frame.winfo_exists(): self.mv_frame.destroy()
+            
+            self._create_monitor_frames(self.left_monitor)
+            
+            self.popout_btn.configure(text="🗗 POP OUT MONITORS")
+
     def on_closing(self):
         self.engine.player.stop()
         self.engine.stop_all()
         self.destroy()
 
 if __name__ == "__main__":
-    app = ValoReplayDeck()
+    app = LiveForgeDeck()
     app.protocol("WM_DELETE_WINDOW", app.on_closing)
     app.mainloop()

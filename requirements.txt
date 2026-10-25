@@ -1,0 +1,4 @@
+customtkinter>=5.2.2
+Pillow>=10.2.0
+obsws-python>=1.6.1
+keyboard>=0.13.5
