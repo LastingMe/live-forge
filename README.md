@@ -33,12 +33,12 @@ Because this system routes high-bitrate video over your network rather than phys
    cd live-forge
 Install the required Python packages:
 
-Bash
-pip install -r requirements.txt
+   ```bash
+   pip install -r requirements.txt
 Launch the engine:
 
-Bash
-python app.py
+   ```bash
+   python app.py
 
 How to Use
 Configure Camera Profiles: Click the SETTINGS button to add the UDP/SRT URLs of your player feeds.
