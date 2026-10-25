@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Forge | Instant Replay Engine</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: #18181b;
+            --surface-hover: #27272a;
+            --accent: #e11d48; /* Live Recording Red */
+            --accent-glow: rgba(225, 29, 72, 0.4);
+            --text: #fafafa;
+            --muted: #a1a1aa;
+            --border: #3f3f46;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Nav */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: rgba(9, 9, 11, 0.8);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 2rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+
+        /* Hero */
+        .hero {
+            padding: 12rem 5% 6rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background: radial-gradient(circle at 50% 0%, #1f1217 0%, var(--bg) 70%);
+        }
+        .badge {
+            background: rgba(225, 29, 72, 0.1);
+            color: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(225, 29, 72, 0.2);
+        }
+        .hero h1 {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--muted);
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+        
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 6px;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background-color: var(--text);
+            color: var(--bg);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255,255,255,0.1);
+        }
+        .btn-secondary {
+            background-color: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background-color: var(--surface-hover);
+            border-color: var(--text);
+        }
+
+        /* Mock UI Graphic */
+        .mock-ui {
+            margin-top: 5rem;
+            width: 100%;
+            max-width: 1000px;
+            background: #121214;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 100px rgba(225, 29, 72, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .mock-header {
+            background: #18181b;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .mock-dots {
+            display: flex;
+            gap: 6px;
+        }
+        .mock-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3f3f46;
+        }
+        .mock-dot:first-child { background: var(--accent); }
+        .mock-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+        }
+        .mock-pane {
+            background: #09090b;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--border);
+            font-size: 3rem;
+            position: relative;
+        }
+        .mock-pane::after {
+            content: "PREVIEW";
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 2px;
+        }
+        .mock-pane:last-child::after { content: "PROGRAM (OBS)"; color: var(--accent); }
+        .mock-footer {
+            background: #18181b;
+            height: 60px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        .mock-timeline {
+            height: 4px;
+            background: #27272a;
+            width: 100%;
+            border-radius: 2px;
+            position: relative;
+        }
+        .mock-playhead {
+            position: absolute;
+            left: 60%;
+            top: -4px;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Stats Strip */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            background: var(--surface);
+        }
+        .stat-box {
+            padding: 3rem 2rem;
+            text-align: center;
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        .stat-box:last-child { border-right: none; }
+        .stat-num {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        /* Features */
+        .features {
+            padding: 8rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .feat-card {
+            padding: 2rem;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .feat-card:hover {
+            border-color: var(--muted);
+            transform: translateY(-5px);
+        }
+        .feat-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        .feat-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+        .feat-card p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 5%;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats { grid-template-columns: 1fr; }
+            .stat-box { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
+            .mock-body { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <div class="logo-dot"></div>
+            LIVE FORGE
+        </div>
+        <div class="nav-links">
+            <a href="https://github.com/LastingMe/live-forge"><i class="fab fa-github"></i> Repository</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="badge">V1.0.0 RELEASED</div>
+        <h1>Kill the <br>Capture Card.</h1>
+        <p>A zero-bloat, network-based instant replay engine for grassroots LAN tournaments. Extract hype moments and push them directly to OBS.</p>
+        
+        <div class="btn-group">
+            <a href="https://github.com/LastingMe/live-forge/releases/download/v1.0.0/Live.Forge.exe" class="btn btn-primary">
+                <i class="fa-brands fa-windows"></i> Download Setup
+            </a>
+            <a href="https://github.com/LastingMe/live-forge" class="btn btn-secondary">
+                <i class="fa-solid fa-code"></i> Source Code
+            </a>
+        </div>
+
+        <div class="mock-ui">
+            <div class="mock-header">
+                <div class="mock-dots">
+                    <div class="mock-dot"></div>
+                    <div class="mock-dot"></div>
+                    <div class="mock-dot"></div>
+                </div>
+            </div>
+            <div class="mock-body">
+                <div class="mock-pane"><i class="fa-solid fa-video"></i></div>
+                <div class="mock-pane"><i class="fa-solid fa-tower-broadcast"></i></div>
+            </div>
+            <div class="mock-footer">
+                <div class="mock-timeline">
+                    <div class="mock-playhead"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="stats">
+        <div class="stat-box">
+            <div class="stat-num">0</div>
+            <div class="stat-label">Capture Cards Needed</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">13+</div>
+            <div class="stat-label">Concurrent LAN Feeds</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-num">100%</div>
+            <div class="stat-label">Free & Open Source</div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="features-grid">
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fa-solid fa-network-wired"></i></div>
+                <h3>UDP/SRT Ingestion</h3>
+                <p>Route multiple player POVs over your Gigabit switch directly from OBS without HDMI cables.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fa-solid fa-memory"></i></div>
+                <h3>Rolling Memory Buffer</h3>
+                <p>Continuously records temporary streams. Zero hard drive bloat ensures players maintain max FPS.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fa-solid fa-scissors"></i></div>
+                <h3>NLE Playback Deck</h3>
+                <p>Set custom IN/OUT points on the fly, apply transitions, and manipulate playback speed for slow-mo.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fa-solid fa-bolt"></i></div>
+                <h3>Global Hotkeys</h3>
+                <p>Press F1-F15 during live action to instantly extract the last 5 to 15 seconds of the rolling buffer.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fa-solid fa-robot"></i></div>
+                <h3>OBS WebSocket Synced</h3>
+                <p>Automated scene routing. Live Forge tells OBS to play the replay, then instantly cuts back to live.</p>
+            </div>
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fa-solid fa-microchip"></i></div>
+                <h3>Hardware Decoding</h3>
+                <p>Native FFmpeg integration utilizing NVIDIA CUDA, Intel QSV, and DXVA2 for high-load production processing.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Built for the grassroots esports community. Licensed under MIT.</p>
+    </footer>
+
+</body>
+</html>
