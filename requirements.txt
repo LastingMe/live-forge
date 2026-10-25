@@ -1,4 +1,12 @@
+HEAD
 customtkinter>=5.2.2
 Pillow>=10.2.0
 obsws-python>=1.6.1
 keyboard>=0.13.5
+
+customtkinter==5.2.2
+
+Pillow==10.2.0
+
+obsws-python==1.6.1
+1b799d4e15d38ca598ef6460343eadd388b224d9
