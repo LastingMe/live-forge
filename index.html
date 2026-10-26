@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Forge | Instant Replay Engine</title>
+    <title>Live Forge | Advanced Replay Engine</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -15,6 +15,7 @@
             --text: #fafafa;
             --muted: #a1a1aa;
             --border: #3f3f46;
+            --code-bg: #000000;
         }
 
         * {
@@ -139,57 +140,6 @@
             border-color: var(--text);
         }
 
-        /* Mock UI Graphic */
-        .mock-ui {
-            margin-top: 5rem;
-            width: 100%;
-            max-width: 1000px;
-            background: #121214;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 100px rgba(225, 29, 72, 0.1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .mock-header {
-            background: #18181b;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-        .mock-dots { display: flex; gap: 6px; }
-        .mock-dot { width: 12px; height: 12px; border-radius: 50%; background: #3f3f46; }
-        .mock-dot:first-child { background: var(--accent); }
-        .mock-body {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1px;
-            background: var(--border);
-        }
-        .mock-pane {
-            background: #09090b;
-            aspect-ratio: 16/9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--border);
-            font-size: 3rem;
-            position: relative;
-        }
-        .mock-pane::after {
-            content: "PREVIEW";
-            position: absolute;
-            bottom: 1rem;
-            left: 1rem;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--muted);
-            letter-spacing: 2px;
-        }
-        .mock-pane:last-child::after { content: "PROGRAM (OBS)"; color: var(--accent); }
-
         /* General Section Formatting */
         .section-title {
             text-align: center;
@@ -201,7 +151,7 @@
         .section-subtitle {
             text-align: center;
             color: var(--muted);
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto 4rem;
         }
         .container {
@@ -217,7 +167,7 @@
             gap: 2rem;
         }
         .feat-card {
-            padding: 2rem;
+            padding: 2.5rem;
             background: var(--surface);
             border-radius: 12px;
             border: 1px solid var(--border);
@@ -240,7 +190,7 @@
             margin-bottom: 1.5rem;
             border: 1px solid var(--border);
         }
-        .feat-card h3 { font-size: 1.2rem; margin-bottom: 0.8rem; }
+        .feat-card h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--accent); }
         .feat-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
 
         /* Hardware Requirements Grid */
@@ -261,12 +211,12 @@
             border: 1px solid var(--border);
         }
         .req-box h3 {
-            color: var(--accent);
+            color: var(--text);
             margin-bottom: 1.5rem;
             font-size: 1.4rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
         }
         .req-list { list-style: none; }
         .req-list li {
@@ -276,10 +226,10 @@
             flex-direction: column;
         }
         .req-list li:last-child { border-bottom: none; }
-        .req-list strong { color: var(--text); font-size: 1.1rem; }
-        .req-list span { color: var(--muted); font-size: 0.9rem; margin-top: 0.3rem; }
+        .req-list strong { color: var(--accent); font-size: 1.1rem; margin-bottom: 0.2rem;}
+        .req-list span { color: var(--muted); font-size: 0.95rem; }
 
-        /* Step-by-step Setup */
+        /* Setup Guide Data Tables */
         .step-container {
             display: flex;
             flex-direction: column;
@@ -288,40 +238,104 @@
             margin: 0 auto;
         }
         .step-card {
-            display: flex;
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 2rem;
-            gap: 2rem;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
         }
-        .step-number {
-            font-size: 4rem;
-            font-weight: 900;
-            color: var(--bg);
-            -webkit-text-stroke: 1px var(--border);
-            line-height: 0.8;
+        .step-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--accent);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            font-weight: bold;
+            border-bottom-left-radius: 12px;
         }
-        .step-content h3 {
+        .step-card h3 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
             color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
-        .step-content p {
+        .step-card p {
             color: var(--muted);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
         .code-block {
-            background: var(--bg);
-            padding: 1rem;
-            border-radius: 6px;
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
             border: 1px solid var(--border);
-            font-family: monospace;
+            font-family: 'Consolas', monospace;
+            color: #10b981;
+            font-size: 0.95rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Parameter Table for OBS */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .param-table th, .param-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .param-table th {
+            background: #121214;
+            color: var(--text);
+            font-weight: 600;
+        }
+        .param-table td:first-child {
             color: var(--accent);
-            font-size: 0.9rem;
+            font-weight: 600;
+            width: 35%;
+        }
+        .param-table td:last-child {
+            color: var(--muted);
         }
 
-        /* Footer */
+        /* FAQ Section */
+        .faq-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .faq-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem 2rem;
+        }
+        .faq-card h4 {
+            color: var(--text);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .faq-card h4 i { color: var(--accent); }
+        .faq-card p {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
         footer {
             padding: 4rem 5%;
             text-align: center;
@@ -332,10 +346,9 @@
 
         @media (max-width: 768px) {
             .req-grid { grid-template-columns: 1fr; }
-            .mock-body { grid-template-columns: 1fr; }
             .nav-links { display: none; }
-            .step-card { flex-direction: column; gap: 1rem; }
-            .step-number { font-size: 3rem; -webkit-text-stroke: 1px var(--accent); }
+            .param-table td { display: block; width: 100% !important; }
+            .param-table td:first-child { border-bottom: none; padding-bottom: 0; }
         }
     </style>
 </head>
@@ -347,155 +360,190 @@
             LIVE FORGE
         </div>
         <div class="nav-links">
-            <a href="#features">Features</a>
+            <a href="#architecture">Architecture</a>
             <a href="#hardware">Hardware</a>
-            <a href="#setup">Setup Guide</a>
+            <a href="#advanced-setup">Documentation</a>
             <a href="https://github.com/LastingMe/live-forge"><i class="fab fa-github"></i> GitHub</a>
         </div>
     </nav>
 
     <header class="hero">
-        <div class="badge">V1.0.0 RELEASED</div>
-        <h1>Kill the <br>Capture Card.</h1>
-        <p>A zero-bloat, network-based instant replay engine for grassroots LAN tournaments. Extract hype moments and push them directly to OBS.</p>
+        <div class="badge">V1.0.0 DOCUMENTATION</div>
+        <h1>Engineered for <br>Grassroots LANs.</h1>
+        <p>Complete technical documentation, network topology guides, and encoding specifications for deploying the Live Forge instant replay engine at your next live esports event.</p>
         
         <div class="btn-group">
             <a href="https://github.com/LastingMe/live-forge/releases/download/v1.0.0/Live.Forge.exe" class="btn btn-primary">
-                <i class="fa-brands fa-windows"></i> Download Setup
+                <i class="fa-brands fa-windows"></i> Download Windows Installer
             </a>
-            <a href="https://github.com/LastingMe/live-forge" class="btn btn-secondary">
-                <i class="fa-solid fa-code"></i> Source Code
-            </a>
-        </div>
-
-        <div class="mock-ui">
-            <div class="mock-header">
-                <div class="mock-dots">
-                    <div class="mock-dot"></div>
-                    <div class="mock-dot"></div>
-                    <div class="mock-dot"></div>
-                </div>
-            </div>
-            <div class="mock-body">
-                <div class="mock-pane"><i class="fa-solid fa-video"></i></div>
-                <div class="mock-pane"><i class="fa-solid fa-tower-broadcast"></i></div>
-            </div>
         </div>
     </header>
 
-    <section id="features" class="container">
-        <h2 class="section-title">Broadcast Architecture</h2>
-        <p class="section-subtitle">Designed specifically to handle heavy LAN event production without bogging down player PCs or requiring massive storage drives.</p>
+    <section id="architecture" class="container">
+        <h2 class="section-title">Core Architecture</h2>
+        <p class="section-subtitle">Understanding the data flow from player machines to the broadcast production deck.</p>
         
         <div class="features-grid">
             <div class="feat-card">
                 <div class="feat-icon"><i class="fa-solid fa-network-wired"></i></div>
-                <h3>UDP/SRT Ingestion</h3>
-                <p>Route multiple player POVs over your Gigabit switch directly from OBS using custom FFmpeg outputs. No HDMI cables required.</p>
+                <h3>UDP/SRT Ingestion Engine</h3>
+                <p>Live Forge bypasses HDMI capture cards by intercepting network packets. Player PCs use OBS to encode their gameplay and push it as a continuous UDP transport stream over the local Gigabit switch.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon"><i class="fa-solid fa-memory"></i></div>
-                <h3>Rolling Memory Buffer</h3>
-                <p>Continuously records temporary streams. Old segments are wiped automatically, ensuring zero hard drive bloat and max game FPS.</p>
+                <h3>Automated Rolling Buffer</h3>
+                <p>The engine continuously writes `.ts` (Transport Stream) chunks to a dedicated SSD directory. An internal chron-job monitors directory size and automatically deletes oldest chunks, maintaining a persistent 5-minute memory loop without bloat.</p>
             </div>
             <div class="feat-card">
-                <div class="feat-icon"><i class="fa-solid fa-scissors"></i></div>
-                <h3>NLE Playback Deck</h3>
-                <p>Set custom IN/OUT points on the fly, apply transitions, and manipulate playback speed for professional slow-motion highlights.</p>
+                <div class="feat-icon"><i class="fa-solid fa-microchip"></i></div>
+                <h3>DXVA2 / CUDA Acceleration</h3>
+                <p>Software decoding 10+ high-bitrate streams simultaneously will crash a CPU. Live Forge pipelines the FFmpeg decoding process directly to your NVIDIA GPU (CUDA) or Intel iGPU (QSV), leaving the CPU free for OBS rendering.</p>
             </div>
             <div class="feat-card">
                 <div class="feat-icon"><i class="fa-solid fa-robot"></i></div>
-                <h3>OBS WebSocket Synced</h3>
-                <p>Automated scene routing. Live Forge triggers the OBS scene transition, plays the rendered clip, and instantly cuts back to live gameplay.</p>
+                <h3>OBS WebSocket v5 Sync</h3>
+                <p>Live Forge operates as a master controller for OBS. When a replay is triggered, the engine connects via WS port 4455, changes the active OBS Scene to "Replay", plays the media source, and automatically cuts back to "Live" upon completion.</p>
             </div>
         </div>
     </section>
 
     <section id="hardware" class="req-section container">
-        <h2 class="section-title">System Requirements</h2>
-        <p class="section-subtitle">Network-based video routing relies heavily on your local infrastructure. Do not attempt to run multiple video streams on 100Mbps hardware.</p>
+        <h2 class="section-title">Strict Hardware Tolerances</h2>
+        <p class="section-subtitle">To prevent dropped frames, network stuttering, and stream desyncs, your physical event infrastructure must meet these minimum specifications.</p>
         
         <div class="req-grid">
             <div class="req-box">
-                <h3><i class="fa-solid fa-server"></i> LAN Infrastructure</h3>
+                <h3><i class="fa-solid fa-server"></i> Network Topology</h3>
                 <ul class="req-list">
                     <li>
-                        <strong>Gigabit Switch (Mandatory)</strong>
-                        <span>A 1000 Mbps unmanaged switch (e.g., TP-Link 24-Port Gigabit) is required. A standard 100 Mbps switch will crash under the bandwidth weight.</span>
+                        <strong>Core Switch Layer</strong>
+                        <span>A 1000 Mbps (Gigabit) unmanaged switch is strictly mandatory. A 10-player LAN pushing 10,000 Kbps each will instantly saturate and crash a 100 Mbps switch.</span>
                     </li>
                     <li>
-                        <strong>Cat6 Ethernet Cabling</strong>
-                        <span>All player machines and the production PC must be hardwired with high-speed Cat6 cables.</span>
+                        <strong>Physical Cabling</strong>
+                        <span>Cat6 or Cat5e Ethernet cables only. Do not attempt to run UDP video streams over venue Wi-Fi.</span>
                     </li>
                     <li>
-                        <strong>Player Setup</strong>
-                        <span>OBS Studio must be installed on player PCs to encode and transmit the UDP feed over the network.</span>
+                        <strong>IP Configuration</strong>
+                        <span>Ensure all Player PCs and the Production PC are on the same subnet (e.g., 192.168.1.X) with no AP Isolation enabled on the router.</span>
                     </li>
                 </ul>
             </div>
             <div class="req-box">
-                <h3><i class="fa-solid fa-desktop"></i> Production PC</h3>
+                <h3><i class="fa-solid fa-desktop"></i> Production Rig</h3>
                 <ul class="req-list">
                     <li>
-                        <strong>GPU (NVIDIA Recommended)</strong>
-                        <span>An RTX 3050 or higher is highly recommended. Live Forge utilizes NVIDIA CUDA to decode up to 13 concurrent video streams smoothly.</span>
+                        <strong>GPU Specifications</strong>
+                        <span>NVIDIA RTX 3050, 3060, or 40-series required. The NVENC/NVDEC chips are critical for maintaining stream stability during multi-cam extraction.</span>
                     </li>
                     <li>
-                        <strong>Processor & RAM</strong>
-                        <span>Intel Core i5 (12th Gen+) or AMD Ryzen 5 (5000 Series+) with at least 16GB RAM.</span>
+                        <strong>Storage Bandwidth</strong>
+                        <span>A dedicated USB 3.1 Type-C External SSD (e.g., Samsung T7) is required solely for the Video Buffer. Writing 10 continuous video streams to your OS Drive (C:) will cause system-wide lockups.</span>
                     </li>
                     <li>
-                        <strong>External SSD Storage</strong>
-                        <span>A dedicated Type-C External SSD is required for the Video Buffer directory to prevent the operating system drive from bottlenecking.</span>
+                        <strong>Processing Power</strong>
+                        <span>Intel Core i5 (12th Gen+) or AMD Ryzen 5 (5000 Series+) with a minimum of 16GB dual-channel RAM.</span>
                     </li>
                 </ul>
             </div>
         </div>
     </section>
 
-    <section id="setup" class="container">
-        <h2 class="section-title">Quick Start Guide</h2>
-        <p class="section-subtitle">Follow these exact steps to prepare your production machine and player PCs for a live LAN event.</p>
+    <section id="advanced-setup" class="container">
+        <h2 class="section-title">Advanced Setup Guide</h2>
+        <p class="section-subtitle">Exact configuration parameters for the Player PCs to ensure the video streams are readable by the Live Forge ingestion engine.</p>
         
         <div class="step-container">
             <div class="step-card">
-                <div class="step-number">01</div>
-                <div class="step-content">
-                    <h3>Install FFmpeg (Crucial)</h3>
-                    <p>Live Forge requires FFmpeg to process and render video clips. Download the latest Windows build of FFmpeg and either add it to your System PATH variables, or extract <strong>ffmpeg.exe</strong> and place it directly into the Live Forge installation folder.</p>
+                <div class="step-badge">Step 1</div>
+                <h3><i class="fa-solid fa-gear"></i> Player PC OBS Configuration</h3>
+                <p>On every player's machine, open OBS Studio. Go to <strong>Settings > Output</strong>. Change the Output Mode to <strong>Advanced</strong>, and navigate to the <strong>Recording</strong> tab. Apply these exact Custom FFmpeg settings:</p>
+                
+                <table class="param-table">
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Required Setting</th>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td>Custom Output (FFmpeg)</td>
+                    </tr>
+                    <tr>
+                        <td>FFmpeg Output Type</td>
+                        <td>Output to URL</td>
+                    </tr>
+                    <tr>
+                        <td>File path or URL</td>
+                        <td>udp://[PRODUCTION_PC_IP]:[PORT]?pkt_size=1316<br><em>(e.g., udp://192.168.1.100:5001?pkt_size=1316)</em></td>
+                    </tr>
+                    <tr>
+                        <td>Container Format</td>
+                        <td>mpegts</td>
+                    </tr>
+                    <tr>
+                        <td>Video Bitrate</td>
+                        <td>8000 Kbps - 15000 Kbps (depending on switch capacity)</td>
+                    </tr>
+                    <tr>
+                        <td>Keyframe interval</td>
+                        <td><strong>1 or 2</strong> (Critical: High keyframes prevent trimming errors)</td>
+                    </tr>
+                    <tr>
+                        <td>Video Encoder</td>
+                        <td>nvenc_h264 or h264_qsv (Hardware encoding only)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="step-card">
+                <div class="step-badge">Step 2</div>
+                <h3><i class="fa-solid fa-plug"></i> Connecting the Engine</h3>
+                <p>On the Production PC, launch Live Forge. In the Camera Profile settings, add the corresponding UDP URLs that you configured on the Player PCs. Ensure you increment the ports for each player (e.g., Player 1 is 5001, Player 2 is 5002).</p>
+                <div class="code-block">
+// Live Forge Camera URL Format
+udp://@0.0.0.0:5001
+udp://@0.0.0.0:5002
+udp://@0.0.0.0:5003
                 </div>
             </div>
 
             <div class="step-card">
-                <div class="step-number">02</div>
-                <div class="step-content">
-                    <h3>Configure OBS WebSocket</h3>
-                    <p>On your main broadcast PC, open OBS Studio and go to <strong>Tools > WebSocket Server Settings</strong>. Check "Enable WebSocket server" (v5). Note your Port (usually 4455) and Server Password. Enter these credentials into the Live Forge Settings menu so the engine can control OBS.</p>
-                </div>
+                <div class="step-badge">Step 3</div>
+                <h3><i class="fa-solid fa-clapperboard"></i> OBS Studio WebSocket Sync</h3>
+                <p>For automated transitions, Live Forge must communicate with the OBS instance running your main broadcast.</p>
+                <ol style="margin-left: 2rem; color: var(--muted); line-height: 2;">
+                    <li>In the Production PC's OBS, go to <strong>Tools > WebSocket Server Settings</strong>.</li>
+                    <li>Check "Enable WebSocket server" and ensure it is running on Port <strong>4455</strong>.</li>
+                    <li>Create a specific Scene in OBS named exactly <strong>Replay</strong>.</li>
+                    <li>Add a Media Source to that scene pointing to the Live Forge output folder.</li>
+                    <li>Enter your WebSocket Password into the Live Forge settings panel.</li>
+                </ol>
             </div>
+        </div>
+    </section>
 
-            <div class="step-card">
-                <div class="step-number">03</div>
-                <div class="step-content">
-                    <h3>Set Up Player UDP Streams</h3>
-                    <p>On every Player PC, open OBS, go to Settings > Output, set the Output Mode to Advanced, and configure a Custom Output (FFmpeg). Enter a unique UDP URL targeting your Production PC's IP address. Example:</p>
-                    <div class="code-block">udp://192.168.1.100:5001?pkt_size=1316</div>
-                    <p style="margin-top: 10px;">Add this exact URL to your Camera Profiles in Live Forge.</p>
-                </div>
+    <section class="container" style="padding-top: 2rem;">
+        <h2 class="section-title">Troubleshooting & FAQ</h2>
+        <p class="section-subtitle">Common issues encountered during live tournament deployments.</p>
+        
+        <div class="faq-grid">
+            <div class="faq-card">
+                <h4><i class="fa-solid fa-triangle-exclamation"></i> The video buffer is stuttering or dropping frames.</h4>
+                <p>This is almost always a network bottleneck. Ensure your switch is truly Gigabit (1000 Mbps). If the switch is Gigabit, verify that the Player PCs are using Cat6 cables. If cables are fine, lower the Player PC OBS Video Bitrate from 15000 Kbps down to 8000 Kbps.</p>
             </div>
-
-            <div class="step-card">
-                <div class="step-number">04</div>
-                <div class="step-content">
-                    <h3>Buffer & Capture</h3>
-                    <p>Click "START BUFFERING" before the match begins. When a hype moment happens, press your assigned Hotkey (e.g., F10) to instantly extract the last 15 seconds. Prep the clip in the NLE deck, and click "Play in OBS" to send it live.</p>
-                </div>
+            <div class="faq-card">
+                <h4><i class="fa-solid fa-scissors"></i> When I extract a clip, the first few seconds are frozen.</h4>
+                <p>This occurs when the Player PC's OBS has a Keyframe Interval set to 0 (Auto) or too high (e.g., 250). FFmpeg requires frequent keyframes to accurately cut `.ts` files. Ensure the Player PC OBS Keyframe Interval is hardcoded to 1 or 2.</p>
+            </div>
+            <div class="faq-card">
+                <h4><i class="fa-solid fa-link-slash"></i> Live Forge cannot connect to OBS WebSocket.</h4>
+                <p>Verify that your Windows Defender Firewall is not blocking port 4455 on your Private Network. Additionally, ensure you have OBS WebSocket v5.x installed (it comes native with OBS v28 and higher; older versions use an incompatible v4 plugin).</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>Live Forge is open-source software built for the esports community. Licensed under MIT.</p>
+        <p>Live Forge is open-source software built to elevate the grassroots esports community. Licensed under MIT.</p>
     </footer>
 
 </body>
