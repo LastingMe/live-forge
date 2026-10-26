@@ -61,7 +61,7 @@
             border-radius: 50%;
             box-shadow: 0 0 10px var(--accent-glow);
         }
-        .nav-links { display: flex; gap: 2rem; }
+        .nav-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
         .nav-links a {
             color: var(--muted);
             text-decoration: none;
@@ -101,7 +101,7 @@
         .hero p {
             font-size: 1.2rem;
             color: var(--muted);
-            max-width: 600px;
+            max-width: 700px;
             margin-bottom: 3rem;
         }
         
@@ -184,12 +184,43 @@
         .feat-card h3 { font-size: 1.2rem; margin-bottom: 0.8rem; color: var(--text); }
         .feat-card p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
 
-        /* Setup Playbook (Numbered Steps) */
-        .playbook {
+        /* Hardware Requirements Grid */
+        .req-section {
             background: #121214;
             border-top: 1px solid rgba(255,255,255,0.05);
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
+        .req-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .req-box {
+            background: var(--surface);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .req-box h3 {
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .req-list { list-style: none; }
+        .req-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .req-list li:last-child { border-bottom: none; }
+        .req-list strong { color: var(--accent); font-size: 1.1rem; margin-bottom: 0.2rem;}
+        .req-list span { color: var(--muted); font-size: 0.95rem; }
+
+        /* Setup & Playbook Container */
         .step-container {
             display: flex;
             flex-direction: column;
@@ -243,6 +274,63 @@
             background: var(--code-bg);
             padding: 1rem;
             border-radius: 4px;
+            overflow-x: auto;
+        }
+
+        /* Parameter Table for OBS */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        .param-table th, .param-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+        .param-table th {
+            background: #121214;
+            color: var(--text);
+            font-weight: 600;
+        }
+        .param-table td:first-child {
+            color: var(--accent);
+            font-weight: 600;
+            width: 40%;
+        }
+        .param-table td:last-child { color: var(--muted); }
+
+        /* FAQ Section */
+        .faq-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .faq-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem 2rem;
+        }
+        .faq-card h4 {
+            color: var(--text);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .faq-card h4 i { color: var(--accent); }
+        .faq-card p {
+            color: var(--muted);
+            font-size: 0.95rem;
         }
 
         footer {
@@ -255,9 +343,12 @@
 
         @media (max-width: 768px) {
             .nav-links { display: none; }
+            .req-grid { grid-template-columns: 1fr; }
             .step-card { grid-template-columns: 1fr; gap: 1rem; text-align: center; }
             .step-number { text-align: center; -webkit-text-stroke: 1px var(--accent); }
             .step-detail { text-align: left; }
+            .param-table td { display: block; width: 100% !important; }
+            .param-table td:first-child { border-bottom: none; padding-bottom: 0; }
         }
     </style>
 </head>
@@ -270,8 +361,11 @@
         </div>
         <div class="nav-links">
             <a href="#features">Core Features</a>
-            <a href="#operations">Event Playbook</a>
-            <a href="https://github.com/LastingMe/live-forge"><i class="fab fa-github"></i> Repository</a>
+            <a href="#hardware">Hardware</a>
+            <a href="#setup">Setup Docs</a>
+            <a href="#playbook">Playbook</a>
+            <a href="#faq">FAQ</a>
+            <a href="https://github.com/LastingMe/live-forge"><i class="fab fa-github"></i> GitHub</a>
         </div>
     </nav>
 
@@ -325,19 +419,124 @@
         </div>
     </section>
 
-    <section id="operations" class="playbook container">
+    <section id="hardware" class="req-section container">
+        <h2 class="section-title">Strict Hardware Tolerances</h2>
+        <p class="section-subtitle">To prevent dropped frames, network stuttering, and stream desyncs, your physical event infrastructure must meet these minimum specifications.</p>
+        
+        <div class="req-grid">
+            <div class="req-box">
+                <h3><i class="fa-solid fa-server"></i> Network Topology</h3>
+                <ul class="req-list">
+                    <li>
+                        <strong>Core Switch Layer</strong>
+                        <span>A 1000 Mbps (Gigabit) unmanaged switch is strictly mandatory. A 10-player LAN pushing 10,000 Kbps each will instantly saturate and crash a 100 Mbps switch.</span>
+                    </li>
+                    <li>
+                        <strong>Physical Cabling</strong>
+                        <span>Cat6 or Cat5e Ethernet cables only. Do not attempt to run UDP video streams over venue Wi-Fi.</span>
+                    </li>
+                    <li>
+                        <strong>IP Configuration</strong>
+                        <span>Ensure all Player PCs and the Production PC are on the same subnet (e.g., 192.168.1.X) with no AP Isolation enabled on the router.</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="req-box">
+                <h3><i class="fa-solid fa-desktop"></i> Production Rig</h3>
+                <ul class="req-list">
+                    <li>
+                        <strong>GPU Specifications</strong>
+                        <span>NVIDIA RTX 3050, 3060, or 40-series required. The NVENC/NVDEC chips are critical for maintaining stream stability during multi-cam extraction.</span>
+                    </li>
+                    <li>
+                        <strong>Storage Bandwidth</strong>
+                        <span>A dedicated USB 3.1 Type-C External SSD (e.g., Samsung T7) is required solely for the Video Buffer. Writing 10 continuous video streams to your OS Drive (C:) will cause system-wide lockups.</span>
+                    </li>
+                    <li>
+                        <strong>Processing Power</strong>
+                        <span>Intel Core i5 (12th Gen+) or AMD Ryzen 5 (5000 Series+) with a minimum of 16GB dual-channel RAM.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="setup" class="container">
+        <h2 class="section-title">Advanced Setup Guide</h2>
+        <p class="section-subtitle">Exact configuration parameters to ensure the player video streams are readable by the Live Forge ingestion engine.</p>
+        
+        <div class="step-container">
+            <div class="step-card">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                    <h3>Player PC OBS Configuration</h3>
+                    <p>On every player's machine, open OBS Studio. Go to <strong>Settings > Output</strong>. Change the Output Mode to <strong>Advanced</strong>, navigate to the <strong>Recording</strong> tab, and apply these exact parameters:</p>
+                    
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Required Setting</th>
+                        </tr>
+                        <tr>
+                            <td>Type</td>
+                            <td>Custom Output (FFmpeg)</td>
+                        </tr>
+                        <tr>
+                            <td>FFmpeg Output Type</td>
+                            <td>Output to URL</td>
+                        </tr>
+                        <tr>
+                            <td>File path or URL</td>
+                            <td>udp://[PRODUCTION_PC_IP]:[PORT]?pkt_size=1316</td>
+                        </tr>
+                        <tr>
+                            <td>Container Format</td>
+                            <td>mpegts</td>
+                        </tr>
+                        <tr>
+                            <td>Video Bitrate</td>
+                            <td>8000 Kbps - 15000 Kbps (depending on switch capacity)</td>
+                        </tr>
+                        <tr>
+                            <td>Keyframe interval</td>
+                            <td><strong>1 or 2</strong> (Critical: High keyframes prevent trimming errors)</td>
+                        </tr>
+                        <tr>
+                            <td>Video Encoder</td>
+                            <td>nvenc_h264 or h264_qsv (Hardware encoding only)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                    <h3>Connecting the Engine</h3>
+                    <p>On the Production PC, launch Live Forge. In the Camera Profile settings, add the corresponding UDP URLs that you configured on the Player PCs. Ensure you increment the ports for each player.</p>
+                    <div class="step-detail">
+                        <span class="code-block">
+// Live Forge Camera URL Format Example
+udp://@0.0.0.0:5001
+udp://@0.0.0.0:5002
+udp://@0.0.0.0:5003
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="playbook" class="playbook container">
         <h2 class="section-title">Live Event Playbook</h2>
-        <p class="section-subtitle">The exact, step-by-step operational guide for deploying Live Forge at a grassroots LAN tournament.</p>
+        <p class="section-subtitle">The exact operational timeline for running Live Forge during a live LAN tournament broadcast.</p>
         
         <div class="step-container">
             <div class="step-card">
                 <div class="step-number">01</div>
                 <div class="step-content">
                     <h3>Hardware Infrastructure</h3>
-                    <p>Connect all player machines and the central Production PC to a Gigabit (1000 Mbps) unmanaged switch using Cat6 Ethernet cables.</p>
-                    <div class="step-detail">
-                        <strong>Warning:</strong> A standard 100 Mbps switch will crash under the bandwidth load of multiple video feeds. True Gigabit routing is strictly mandatory.
-                    </div>
+                    <p>Connect all player machines and the central Production PC to your Gigabit switch using Cat6 Ethernet cables.</p>
                 </div>
             </div>
 
@@ -345,29 +544,12 @@
                 <div class="step-number">02</div>
                 <div class="step-content">
                     <h3>Player PC Encoding</h3>
-                    <p>Open OBS Studio on each player's computer to establish the video feed.</p>
-                    <div class="step-detail">
-                        1. Go to <strong>Settings > Output</strong> and set it to <strong>Custom Output (FFmpeg)</strong>.<br>
-                        2. Set the Output Type to <strong>URL</strong>.<br>
-                        3. Direct the stream to the Production PC's IP address, assigning a unique port for each player. Set the keyframe interval to 1 or 2 so the footage can be cut cleanly.<br>
-                        <span class="code-block">udp://192.168.1.100:5001?pkt_size=1316</span>
-                    </div>
+                    <p>Ensure OBS Studio is open on each player's computer and outputting the UDP stream to your Production PC's IP address.</p>
                 </div>
             </div>
 
             <div class="step-card">
                 <div class="step-number">03</div>
-                <div class="step-content">
-                    <h3>Engine Ingestion</h3>
-                    <p>Launch Live Forge on the primary Production PC.</p>
-                    <div class="step-detail">
-                        Enter the matching UDP URLs from Step 2 into the Live Forge Camera Profiles. This allows the engine to lock onto the incoming player feeds across the local network.
-                    </div>
-                </div>
-            </div>
-
-            <div class="step-card">
-                <div class="step-number">04</div>
                 <div class="step-content">
                     <h3>OBS Synchronization</h3>
                     <p>Link Live Forge to the OBS Studio instance handling the actual livestream.</p>
@@ -380,7 +562,7 @@
             </div>
 
             <div class="step-card">
-                <div class="step-number">05</div>
+                <div class="step-number">04</div>
                 <div class="step-content">
                     <h3>Live Execution</h3>
                     <p>Operate the replay system during the tournament broadcast.</p>
@@ -388,6 +570,26 @@
                         Click <strong>START BUFFERING</strong> when the match begins. When a clutch round ends, press your assigned F-key, adjust the clip in the NLE deck, and click <strong>Play in OBS</strong> to instantly push the replay to the live stream.
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="container" style="padding-top: 4rem;">
+        <h2 class="section-title">Troubleshooting & FAQ</h2>
+        <p class="section-subtitle">Common issues encountered during live tournament deployments.</p>
+        
+        <div class="faq-grid">
+            <div class="faq-card">
+                <h4><i class="fa-solid fa-triangle-exclamation"></i> The video buffer is stuttering or dropping frames.</h4>
+                <p>This is almost always a network bottleneck. Ensure your switch is truly Gigabit (1000 Mbps). If the switch is Gigabit, verify that the Player PCs are using Cat6 cables. If cables are fine, lower the Player PC OBS Video Bitrate from 15000 Kbps down to 8000 Kbps.</p>
+            </div>
+            <div class="faq-card">
+                <h4><i class="fa-solid fa-scissors"></i> When I extract a clip, the first few seconds are frozen.</h4>
+                <p>This occurs when the Player PC's OBS has a Keyframe Interval set to 0 (Auto) or too high (e.g., 250). FFmpeg requires frequent keyframes to accurately cut `.ts` files. Ensure the Player PC OBS Keyframe Interval is hardcoded to 1 or 2.</p>
+            </div>
+            <div class="faq-card">
+                <h4><i class="fa-solid fa-link-slash"></i> Live Forge cannot connect to OBS WebSocket.</h4>
+                <p>Verify that your Windows Defender Firewall is not blocking port 4455 on your Private Network. Additionally, ensure you have OBS WebSocket v5.x installed (it comes native with OBS v28 and higher; older versions use an incompatible v4 plugin).</p>
             </div>
         </div>
     </section>
